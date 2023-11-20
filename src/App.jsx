@@ -11,14 +11,26 @@ function App() {
       newDice.push(
         {
           id: nanoid(),
-          value: Math.ceil(Math.random() * 6)
+          value: Math.ceil(Math.random() * 6),
+          isHeld: false
         }
       )
     } 
     return newDice
   }
+
+  function holdDice(id){
+    setDice(oldDice => oldDice.map(die => (
+      die.id === id ?
+        {...die, isHeld: !die.isHeld} : die
+    )))
+  }
   const diceElements = dice.map(die => (
-      <Die key={die.id} value={die.value} />
+      <Die 
+      key={die.id} 
+      value={die.value} 
+      isHeld={die.isHeld} 
+      holdDice={() => holdDice(die.id)}/>
     ))
  
   return (
@@ -26,6 +38,7 @@ function App() {
        <div className="dice-container">
           {diceElements}
         </div>
+        <button className='roll-btn'>Roll</button>
     </main>
   )
   
