@@ -6,6 +6,7 @@ import Confetti from 'react-confetti'
 function App() {
   const [dice, setDice] = useState(createNewDice());
   const [tenzies, setTenzies] = useState(false)
+  const [count, setCount] = useState(0)
   
   useEffect(() => {
     const allDiceHeld = dice.every(die => die.isHeld === true);
@@ -46,7 +47,15 @@ function App() {
       setDice(oldDice => oldDice.map(die => (
         die.isHeld === true ? die : generateNewDie()
       )))
+    } else {
+      setTenzies(false)
+      setDice(createNewDice())
+      setCount(-1)
     }
+  }
+  
+  function incrementCount() {
+    setCount(count => count + 1)
   }
 
   const diceElements = dice.map(die => (
@@ -54,15 +63,27 @@ function App() {
       key={die.id} 
       value={die.value} 
       isHeld={die.isHeld} 
-      holdDice={() => holdDice(die.id)}/>
+      holdDice={() => holdDice(die.id)}
+     />
     ))
  
   return (
     <main>
-       <div className="dice-container">
-          {diceElements}
-        </div>
-        <button className='roll-btn' onClick={rollDice}>Roll</button>
+      {tenzies && <Confetti />}
+      <h1 className="title">Tenzies</h1>
+      <p className="instructions">Roll until all dice are the same. 
+      Click each die to freeze it at its current value between rolls.</p>
+
+      <div className="dice-container">
+        {diceElements}
+      </div>
+
+      <button className='roll-btn' onClick={() => {rollDice(); incrementCount()}}>{tenzies ? "New Game" : "Roll"}</button>
+
+      <div className='roll-count'>
+        <p>{`Rolls: ${count}`}</p>
+        <p>Best:</p>
+      </div>
     </main>
   )
   
