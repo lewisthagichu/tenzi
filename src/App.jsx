@@ -6,7 +6,9 @@ import Confetti from 'react-confetti'
 function App() {
   const [dice, setDice] = useState(createNewDice());
   const [tenzies, setTenzies] = useState(false)
-  const [count, setCount] = useState(0)
+  const [currentCount, setCurrentCount] = useState(0)
+  const [bestCount, setBestCount] = useState(
+    () => JSON.parse(localStorage.getItem('bestCount')) || Infinity)
   
   useEffect(() => {
     const allDiceHeld = dice.every(die => die.isHeld === true);
@@ -18,6 +20,13 @@ function App() {
       setTenzies(true)
     }
   }, [dice])
+
+  useEffect(() => {
+    if (tenzies && currentCount < bestCount) {
+      setBestCount(currentCount)
+      localStorage.setItem("bestCount", JSON.stringify(currentCount))
+    }
+  }, [bestCount, currentCount, tenzies]) 
 
   function createNewDice() {
     const newDice = []
@@ -47,17 +56,14 @@ function App() {
       setDice(oldDice => oldDice.map(die => (
         die.isHeld === true ? die : generateNewDie()
       )))
+      setCurrentCount(count => count + 1)
     } else {
       setTenzies(false)
       setDice(createNewDice())
-      setCount(-1)
+      setCurrentCount(0)
     }
   }
   
-  function incrementCount() {
-    setCount(count => count + 1)
-  }
-
   const diceElements = dice.map(die => (
       <Die 
       key={die.id} 
@@ -78,11 +84,11 @@ function App() {
         {diceElements}
       </div>
 
-      <button className='roll-btn' onClick={() => {rollDice(); incrementCount()}}>{tenzies ? "New Game" : "Roll"}</button>
+      <button className='roll-btn' onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
 
       <div className='roll-count'>
-        <p>{`Rolls: ${count}`}</p>
-        <p>Best:</p>
+        <p>{`Rolls: ${currentCount}`}</p>
+        <p>{`Best: ${bestCount > 1000 ? 0 : bestCount}`}</p>
       </div>
     </main>
   )
